@@ -1,0 +1,109 @@
+<?php
+/**
+ * @noinspection PhpDocMissingThrowsInspection
+ * @noinspection PhpUnhandledExceptionInspection
+ */
+declare(strict_types=1);
+
+namespace MarcinOrlowski\ResponseBuilder\Tests\Converter;
+
+/**
+ * Laravel API Response Builder
+ *
+ * @author    Marcin Orlowski <mail (#) marcinOrlowski (.) com>
+ * @copyright 2016-2025 Marcin Orlowski
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT
+ * @link      https://github.com/MarcinOrlowski/laravel-api-response-builder
+ */
+
+use Illuminate\Support\Facades\Config;
+use MarcinOrlowski\PhpunitExtraAsserts\ExtraAsserts;
+use MarcinOrlowski\PhpunitExtraAsserts\Generator;
+use MarcinOrlowski\ResponseBuilder\Converter;
+use MarcinOrlowski\ResponseBuilder\Converters\ToArrayConverter;
+use MarcinOrlowski\ResponseBuilder\Exceptions as Ex;
+use MarcinOrlowski\ResponseBuilder\ResponseBuilder as RB;
+use MarcinOrlowski\ResponseBuilder\Tests\Models\TestModel;
+use MarcinOrlowski\ResponseBuilder\Tests\Models\TestModelChild;
+use MarcinOrlowski\ResponseBuilder\Tests\TestCase;
+
+/**
+ * Class ConverterTest
+ */
+class ConverterTest extends TestCase
+{
+    /**
+     * Checks if Converter's constructor would throw exception when configuration is invalid.
+     */
+    public function testConstructor(): void
+    {
+        // GIVEN incorrect mapping configuration
+        Config::set(RB::CONF_KEY_CONVERTER_CLASSES, false);
+
+        // THEN we expect exception thrown
+        $this->expectException(Ex\InvalidConfigurationException::class);
+
+        // WHEN attempt to instantiate Converter class
+        new Converter();
+    }
+
+    /**
+     * Checks if object of child class will be properly converted when
+     * configuration mapping exists for its parent class only.
+     */
+    public function testSubclassOfConfiguredClassConversion(): void
+    {
+        // GIVEN two objects with direct inheritance relation
+        $parent_val = Generator::getRandomString('parent');
+        $parent = new TestModel($parent_val);
+        $child_val = Generator::getRandomString('child');
+        $child = new TestModelChild($child_val);
+
+        // HAVING indirect mapping configuration (of parent class)
+        $key = Generator::getRandomString('key');
+        Config::set(RB::CONF_KEY_CONVERTER_CLASSES, [
+            \get_class($parent) => [
+                RB::KEY_HANDLER => ToArrayConverter::class,
+                RB::KEY_KEY     => $key,
+            ],
+        ]);
+
+        // WHEN we try to pass of child class
+        $result = (new Converter())->convert($child);
+
+        // EXPECT it to be converted as per parent class configuration entry
+        ExtraAsserts::assertIsArray($result);
+        /** @var array<string, mixed> $result */
+        $this->assertArrayHasKey($key, $result);
+        $result = $result[ $key ];
+        /** @var array<string, mixed> $result */
+        $this->assertCount(1, $result);
+        $this->assertEquals($child_val, $result[ TestModel::FIELD_NAME ]);
+    }
+
+    /**
+     * Checks if ToArrayConverter throws exception for object without toArray method.
+     */
+    public function testToArrayConverterThrowsExceptionForObjectWithoutToArrayMethod(): void
+    {
+        // GIVEN an object without a toArray method
+        $obj = new \stdClass();
+        $obj->foo = Generator::getRandomString('foo');
+
+        // HAVING configuration mapping stdClass to ToArrayConverter
+        $key = Generator::getRandomString('key');
+        Config::set(RB::CONF_KEY_CONVERTER_CLASSES, [
+            \get_class($obj) => [
+                RB::KEY_HANDLER => ToArrayConverter::class,
+                RB::KEY_KEY     => $key,
+            ],
+        ]);
+
+        // THEN we expect an exception
+        $this->expectException(\InvalidArgumentException::class);
+
+        // WHEN we try to convert the object
+        (new Converter())->convert($obj);
+    }
+
+} // end of class

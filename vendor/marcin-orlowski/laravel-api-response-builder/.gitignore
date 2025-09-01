@@ -1,0 +1,10 @@
+.idea/
+vendor/
+*.lock
+*.cache
+*.swp
+*~
+*.bak
+
+.roo
+.roomodes

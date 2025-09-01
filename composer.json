@@ -1,0 +1,33 @@
+{
+  "name": "sabbir/larashield",
+  "description": "User, Role, Auth management package with ResponseBuilder and Policies",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Larashield\\": "src/"
+    }
+  },
+  "authors": [
+    { "name": "SabbirHR", "email": "sabbirhossen860@gmail.com" }
+  ],
+  "require": {
+    "spatie/laravel-permission": "^6.10",
+    "marcin-orlowski/laravel-api-response-builder": "^12.0",
+    "laravel/sanctum": "^4.0",
+    "sabbir/response-builder": "@dev"
+  },
+  "repositories": [
+       {
+           "type": "path",
+           "url": "../response-builder"
+       }
+   ],
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Larashield\\Providers\\LarashieldServiceProvider"
+      ]
+    }
+  }
+}

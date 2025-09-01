@@ -1,0 +1,73 @@
+{
+  "name": "marcin-orlowski/laravel-api-response-builder",
+  "description": "Helps building nice, normalized and easy to consume Laravel REST API.",
+  "homepage": "https://github.com/MarcinOrlowski/laravel-api-response-builder",
+  "version": "12.1.1",
+  "keywords": [
+    "laravel",
+    "laravel10",
+    "json",
+    "api",
+    "builder",
+    "rest",
+    "helper",
+    "php",
+    "php8",
+    "php82",
+    "php83",
+    "mobile",
+    "android",
+    "ios"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Marcin Orlowski",
+      "homepage": "https://MarcinOrlowski.com/"
+    }
+  ],
+  "support": {
+    "source": "https://github.com/MarcinOrlowski/laravel-api-response-builder/",
+    "issues": "https://github.com/MarcinOrlowski/laravel-api-response-builder/issues"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MarcinOrlowski\\ResponseBuilder\\ResponseBuilderServiceProvider"
+      ]
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "MarcinOrlowski\\ResponseBuilder\\": "src/",
+      "MarcinOrlowski\\ResponseBuilder\\Tests\\Traits\\": "tests/Traits/",
+      "MarcinOrlowski\\ResponseBuilder\\Tests\\": "tests/phpunit"
+    }
+  },
+  "require": {
+    "php": "^8.2|^8.3|^8.4",
+    "laravel/framework": "^12.0"
+  },
+  "require-dev": {
+    "marcin-orlowski/phpunit-extra-asserts": "^5.1.0",
+    "orchestra/testbench": "^10.0",
+    "phpunit/phpunit": "^11.0",
+    "phpunit/php-code-coverage": "^11.0",
+    "larastan/larastan": "^3.0",
+    "marcin-orlowski/lockpick": "^1.0"
+  },
+  "scripts": {
+    "test": [
+      "Composer\\Config::disableProcessTimeout",
+      "vendor/bin/phpunit -c tests/phpunit.xml"
+    ],
+    "lint": [
+      "Composer\\Config::disableProcessTimeout",
+      "vendor/bin/phpstan analyse -c phpstan.neon --no-progress --no-interaction src/ tests/"
+    ],
+    "mdlint": [
+      "Composer\\Config::disableProcessTimeout",
+      "markdownlint --config .markdownlint.yaml --ignore vendor **/*.md .github/**/*.md docs README.md"
+    ]
+  }
+}

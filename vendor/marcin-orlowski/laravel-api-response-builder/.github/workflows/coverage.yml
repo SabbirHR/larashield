@@ -1,0 +1,69 @@
+##################################################################################
+#
+# Laravel API Response Builder Unit tests Github Action config
+#
+# @author    Marcin Orlowski <mail (#) marcinOrlowski (.) com>
+# @copyright 2016-2025 Marcin Orlowski
+# @license   http://www.opensource.org/licenses/mit-license.php MIT
+# @link      https://github.com/MarcinOrlowski/laravel-api-response-builder
+#
+##################################################################################
+
+name: "Coverage"
+
+on:
+  push:
+    branches:
+    - "master"
+  pull_request:
+    branches:
+    - "master"
+    - "dev"
+
+jobs:
+  coverage:
+    strategy:
+      # do not stop the workflow if single run failed
+      fail-fast: false
+      matrix:
+        # quotes are needed it is treated as a number and zero at decimal part is gone
+        # at runtime i.e. 8.10 -> 8.1, while "8.10" => "8.10".
+        laravel: ["12.0"]
+        php: ["8.2", "8.3", "8.4"]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout repository..."
+        uses: actions/checkout@v4
+
+      # https://github.com/marketplace/actions/composer-php-actions
+      - name: "Installing dependencies..."
+        uses: php-actions/composer@v6
+        with:
+          version: 2
+          php_version: "${{ matrix.php }}"
+          dev: yes
+
+      - name: "Patching testbench's onNotSuccessfulTest() signature..."
+        shell: bash
+        run: "sed -i 's/^protected function onNotSuccessfulTest(Throwable \\$exception)\\: void/protected function onNotSuccessfulTest(Throwable \\$exception)\\: never/' vendor/orchestra/testbench-core/src/TestCase.php"
+
+      # https://github.com/marketplace/actions/phpunit-php-actions
+      - name: "Running PHPUnit with Coverage..."
+        uses: php-actions/phpunit@v3
+        with:
+          bootstrap: "vendor/autoload.php"
+          configuration: "tests/phpunit.xml"
+          php_extensions: "xdebug"
+          args: --coverage-clover coverage.xml
+        env:
+          XDEBUG_MODE: coverage
+
+      # https://github.com/marketplace/actions/codecov
+      - name: "Uploading coverage to CodeCov.io..."
+        uses: codecov/codecov-action@v1
+        with:
+          files: coverage.xml
+          flags: unittests
+          fail_ci_if_error: true
