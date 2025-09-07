@@ -1,16 +1,19 @@
 <?php
 namespace Larashield\Http\Controllers;
 
+use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Larashield\Models\User;
 use Sabbir\ResponseBuilder\Services\ResourceService;
 use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
+use Sabbir\ResponseBuilder\Constants\ApiCodes;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     use ResponseHelperTrait;
+
     protected $resourceService;
 
     public function __construct(ResourceService $resourceService, Request $request)
@@ -21,28 +24,41 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate(['email'=>'required|email','password'=>'required|string']);
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string'
+        ]);
+
         $user = User::where('email', $request->email)->first();
 
-        if(!$user || !Hash::check($request->password, $user->password)) {
-            return $this->resourceService
-                ->message('Invalid credentials')
-                ->responseCode(HttpResponse::HTTP_UNAUTHORIZED);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return $this->errorResponse(
+                null,
+                ApiCodes::UNAUTHORIZED,
+                'Invalid credentials',
+                HttpResponse::HTTP_UNAUTHORIZED 
+            );
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return $this->resourceService
-            ->message('Login successful')
-            ->responseCode(HttpResponse::HTTP_OK)
-            ->show(['user'=>$user,'token'=>$token], $user);
+        return $this->successResponse(
+            ['user' => $user, 'token' => $token], 
+            ApiCodes::OK,                          
+            'Login successful',                    
+            HttpResponse::HTTP_OK 
+        );
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return $this->resourceService
-            ->message('Logout successful')
-            ->responseCode(HttpResponse::HTTP_OK);
+
+        return $this->successResponse(
+            null,
+            ApiCodes::OK,                           
+            'Logout successful',                   
+            HttpResponse::HTTP_OK          
+        );
     }
 }

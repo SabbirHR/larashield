@@ -1,6 +1,7 @@
 <?php
 namespace Larashield\Http\Controllers;
 
+use Illuminate\Routing\Controller;
 use Larashield\Models\User;
 use Illuminate\Http\Request;
 use Sabbir\ResponseBuilder\Services\ResourceService;
