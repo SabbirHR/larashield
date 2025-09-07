@@ -40,9 +40,5 @@ class LarashieldServiceProvider extends ServiceProvider
             '--force' => true,
         ]);
 
-        // Run migrations
-        Artisan::call('migrate', [
-            '--force' => true,
-        ]);
     }
 }
