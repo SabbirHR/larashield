@@ -1,38 +1,34 @@
-📦 Larashield Installation & Setup Guide
+# 📦 Larashield Installation & Setup Guide
 
-Larashield provides authentication & API security features for your Laravel application.
-Follow these steps to install and configure the package in a fresh or existing Laravel project.
+Larashield provides **authentication & API security features** for your Laravel application.  
+Follow these steps to install and configure the package in a **fresh or existing Laravel project**.
 
-1. Install Laravel Project (if not already)
+---
+
+## 1️⃣ Install Laravel Project (if not already)
+
+```bash
 laravel new myapp
 cd myapp
 
-2. Require Larashield Package
+## 2️⃣ Require Larashield Package
 
-Run the following command to install Larashield (and its dependencies like Sanctum, Spatie, etc.):
+Run the following command to install Larashield and its dependencies:
 
+```bash
 composer require sabbir/larashield:@dev -W
-
-3. Automatic Setup
+## 3️⃣ Automatic Setup
 
 After installation, Larashield auto-publishes configs and runs migrations.
 If you need to manually set up or re-publish, run:
-
+```bash
 php artisan larashield:install
 
-
-This will:
-
-Publish Laravel Sanctum config
-
-Publish Larashield config (config/larashield.php)
-
-Run all required migrations
-
-4. Database Setup
+## 4️⃣ Database Setup
 
 Make sure your .env file has a database connection configured. Example:
 
+```bash
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -40,38 +36,30 @@ DB_DATABASE=myapp
 DB_USERNAME=root
 DB_PASSWORD=
 
-5. Authentication Routes
+## 5️⃣ Authentication Routes
 
-Larashield automatically loads its API routes from:
+Larashield automatically loads its API routes from the package:
 
-routes/api.php (inside the package)
+```bash
+| Method | URI           | Description                      |
+| ------ | ------------- | -------------------------------- |
+| POST   | /api/register | Register a new user              |
+| POST   | /api/login    | Login and receive token          |
+| POST   | /api/logout   | Logout the user (requires token) |
 
+## 6️⃣ Testing with Postman
 
-Examples:
+Login Request:
 
-POST /api/register – register a new user
-
-POST /api/login – login and receive token
-
-POST /api/logout – logout the user
-
-6. Testing with Postman
-
-Use Postman to test login:
-
-Request:
-
+```bash
 POST /api/login
 Content-Type: application/json
-
+```bash
 {
     "email": "user@example.com",
     "password": "password"
 }
-
-
-Postman Script (Tests Tab):
-
+```bash
 var data = pm.response.json();
 if (data && data.data && data.data.token) {
     pm.environment.set("auth_token", data.data.token);
@@ -79,12 +67,16 @@ if (data && data.data && data.data.token) {
     console.log("Token not found in response");
 }
 
-7. Using the Token
+
+## 7️⃣ Using the Token
 
 For any protected routes, set the header in Postman:
 
+```bash
 Authorization: Bearer {{auth_token}}
 
-✅ Done!
 
-Your Laravel app is now protected with Larashield 🎉
+
+
+
+
