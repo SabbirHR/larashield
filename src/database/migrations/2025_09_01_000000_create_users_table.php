@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->enum('gender', ['male', 'female', 'other']);
             $table->string('password');
-            $table->string('user_type')->default('sadmin'); 
+            $table->string('user_type')->default('b2c'); 
             $table->boolean('status')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

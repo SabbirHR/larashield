@@ -1,9 +1,11 @@
 <?php
+
 namespace Larashield\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Larashield\Models\User;
+use Larashield\Http\Requests\RegistrationRequest;
 use Sabbir\ResponseBuilder\Services\ResourceService;
 use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
 use Sabbir\ResponseBuilder\Constants\ApiCodes;
@@ -36,17 +38,17 @@ class AuthController extends Controller
                 null,
                 ApiCodes::UNAUTHORIZED,
                 'Invalid credentials',
-                HttpResponse::HTTP_UNAUTHORIZED 
+                HttpResponse::HTTP_UNAUTHORIZED
             );
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
         return $this->successResponse(
-            ['user' => $user, 'token' => $token], 
-            ApiCodes::OK,                          
-            'Login successful',                    
-            HttpResponse::HTTP_OK 
+            ['user' => $user, 'token' => $token],
+            ApiCodes::OK,
+            'Login successful',
+            HttpResponse::HTTP_OK
         );
     }
 
@@ -56,9 +58,37 @@ class AuthController extends Controller
 
         return $this->successResponse(
             null,
-            ApiCodes::OK,                           
-            'Logout successful',                   
-            HttpResponse::HTTP_OK          
+            ApiCodes::OK,
+            'Logout successful',
+            HttpResponse::HTTP_OK
+        );
+    }
+
+    /**
+     * User Registration
+     */
+    public function registration(RegistrationRequest $request)
+    {
+        $validated = $request->validated();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'user_type' => 'b2c', // default user_type
+            'status' => 1,
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return $this->successResponse(
+            [
+                'user' => $user,
+                'token' => $token
+            ],
+            ApiCodes::OK,
+            'Registration successful',
+            HttpResponse::HTTP_OK
         );
     }
 }

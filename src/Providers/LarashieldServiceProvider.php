@@ -2,7 +2,6 @@
 namespace Larashield\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Artisan;
 
 class LarashieldServiceProvider extends ServiceProvider
 {
