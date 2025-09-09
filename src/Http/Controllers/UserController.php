@@ -22,7 +22,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('viewAny', User::class);
+        // $this->authorize('viewAny', User::class);
         return $this->resourceService->index();
     }
 
@@ -37,7 +37,9 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $this->authorize('view', $user);
+        return $this->resourceService->show('User retrieved successfully', $user);
+        return $user;
+        // $this->authorize('view', $user);
         return $this->resourceService->show(null, $user);
     }
 
