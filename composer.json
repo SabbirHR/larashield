@@ -1,5 +1,5 @@
 {
-  "name": "SabbirHR/larashield",
+  "name": "sabbirhr/larashield",
   "description": "User, Role, Auth management package with ResponseBuilder and Policies",
   "type": "library",
   "license": "MIT",
