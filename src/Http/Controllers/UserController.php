@@ -1,4 +1,5 @@
 <?php
+
 namespace Larashield\Http\Controllers;
 
 use Illuminate\Routing\Controller;
@@ -28,19 +29,16 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $this->authorize('create', User::class);
+        // $this->authorize('create', User::class);
         return $this->resourceService
             ->message('User created successfully')
             ->responseCode(HttpResponse::HTTP_CREATED)
             ->store($request->validated());
     }
 
-    public function show(User $user)
+    public function show($id)
     {
-        return $this->resourceService->show('User retrieved successfully', $user);
-        return $user;
-        // $this->authorize('view', $user);
-        return $this->resourceService->show(null, $user);
+        return $this->resourceService->show('User retrieved successfully', User::findOrFail($id));
     }
 
     public function update(UserRequest $request, User $user)

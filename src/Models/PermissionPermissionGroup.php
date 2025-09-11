@@ -13,13 +13,20 @@ class PermissionPermissionGroup extends Model
     protected $table = 'permission_permission_group';
     protected $hidden = ['created_at', 'updated_at'];
 
+    // Belongs to a Permission
     public function permission(): BelongsTo
     {
         return $this->belongsTo(Permission::class, 'permission_id');
     }
 
+    // Many-to-many with Role
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_has_permissions', 'permission_id', 'role_id');
+        return $this->belongsToMany(
+            Role::class,
+            'role_has_permissions',
+            'permission_id',
+            'role_id'
+        );
     }
 }

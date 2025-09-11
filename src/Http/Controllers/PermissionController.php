@@ -2,14 +2,15 @@
 
 namespace Larashield\Http\Controllers;
 
-use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Larashield\Models\PermissionGroup;
+use Larashield\Services\PermissionService;
+use Sabbir\ResponseBuilder\Services\ResourceService;
+use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Larashield\Services\PermissionService;
-use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
-use Sabbir\ResponseBuilder\Services\ResourceService;
 
 class PermissionController extends Controller
 {
@@ -51,10 +52,9 @@ class PermissionController extends Controller
     /**
      * Show Permission Group with relations
      */
-    public function show(PermissionGroup $permissionGroup)
+    public function show($id)
     {
-        return $permissionGroup;
-        return $this->resourceService->show(null, PermissionGroup::with(['permission', 'permission_group_has_permission'])->find($permissionGroup));
+        return $this->resourceService->show(null, PermissionGroup::with(['permission',])->findOrFail($id));
     }
 
     /**

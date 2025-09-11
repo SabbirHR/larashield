@@ -4,9 +4,10 @@ namespace Larashield\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Larashield\Http\Requests\RoleRequest;
-use Spatie\Permission\Models\Role;
-use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
+use Sabbir\ResponseBuilder\Constants\ApiCodes;
 use Sabbir\ResponseBuilder\Services\ResourceService;
+use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -31,20 +32,29 @@ class RoleController extends Controller
         return $this->successResponse($role->load('permissions'), 200, 'Role created');
     }
 
-    public function show(Role $role)
+    public function show($id)
     {
-        return $this->resourceService->show(null, $role->load('permissions'));
+        return $this->resourceService->show(null, Role::with(['permissions',])->findOrFail($id));
     }
 
-    public function update(RoleRequest $request, Role $role)
+    public function update(RoleRequest $request,  $id)
     {
+        $role = Role::findOrFail($id);
         $role->update($request->validated());
-        $role->syncPermissions($request->permissions);
-        return $this->successResponse($role->load('permissions'), 200, 'Role updated');
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
+        return $this->successResponse(
+            $role->load('permissions:id,name'),
+            ApiCodes::OK,
+            'Role has been updated successfully.'
+        );
     }
 
-    public function destroy(Role $role)
+    public function destroy($id)
     {
+        // return 
+        $role = Role::findOrFail($id);
         $role->permissions()->detach();
         return $this->resourceService->destroy($role);
     }

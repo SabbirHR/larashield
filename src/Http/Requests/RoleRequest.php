@@ -3,7 +3,9 @@
 namespace Larashield\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class RoleRequest extends FormRequest
 {
@@ -21,6 +23,11 @@ class RoleRequest extends FormRequest
     {
         // Add user_id to the request data before validation
         $this->merge(['guard_name' => 'web']);
+        // DEBUG: log all request input
+        Log::info('🔍 RoleRequest Input:', $this->all());
+
+        // DEBUG: log route parameter
+        Log::info('🔍 RoleRequest Route Parameterssss:', ['role' => $this->route('role')]);
     }
     public function rules(): array
     {
@@ -29,6 +36,7 @@ class RoleRequest extends FormRequest
                 return [];
 
             case 'POST': // Validation rules for the store method
+
                 return [
                     'name' => 'required|unique:roles|max:50',
                     'permissions' => 'array', // Ensures permissions is an array
@@ -41,29 +49,22 @@ class RoleRequest extends FormRequest
 
 
             case 'PUT':
-                $id = $this->route('role')->id;
-                return [
-                    [
-                        'name' => 'required|max:50|unique:roles,name,' . $id,
-                        'permissions.*' => [
-                            'exists:permissions,name',
-                            Rule::notIn(config('setup-config.protected_permissions')), // Prevent protected permissions
-                        ],
-                        'guard_name' => 'required|in:web',
-                    ]
-                ];
             case 'PATCH': // Validation rules for the update method
-                $id = $this->route('role')->id;
+                $role = $this->route('role');
+                if (is_string($role)) {
+                    $role = Role::findOrFail($role);
+                }
+
                 return [
-                    [
-                        'name' => 'required|max:50|unique:roles,name,' . $id,
-                        'permissions.*' => [
-                            'exists:permissions,name',
-                            Rule::notIn(config('setup-config.protected_permissions')), // Prevent protected permissions
-                        ],
-                        'guard_name' => 'required|in:web',
-                    ]
+                    'name' => 'required|max:50|unique:roles,name,' . $role->id,
+                    'permissions' => 'array',
+                    'permissions.*' => [
+                        'exists:permissions,name',
+                        Rule::notIn(config('setup-config.protected_permissions')),
+                    ],
+                    'guard_name' => 'required|in:web',
                 ];
+
 
             case 'DELETE': // Validation rules for the delete method (if needed)
                 return [

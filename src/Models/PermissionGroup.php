@@ -9,6 +9,11 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionGroup extends Model
 {
+    protected $table = 'permission_groups';
+    protected $primaryKey = 'id'; // Explicitly set
+    public $incrementing = true; // Ensure this is true
+    protected $keyType = 'int'; // Ensure this is int
+
     protected $fillable = [
         'name',
     ];
@@ -31,17 +36,37 @@ class PermissionGroup extends Model
         'permission'
     ];
 
+    // Each permission group has many permission_permission_group
     public function permission_group_has_permission(): HasMany
     {
-        return $this->hasMany(PermissionPermissionGroup::class,'permission_group_id', 'id');
+        return $this->hasMany(
+            PermissionPermissionGroup::class,
+            'permission_group_id', // must match DB column
+            'id'
+        )->with('permission'); // eager load Permission automatically
     }
-    public function roles()
-    {
-
-        return $this->permission_group_has_permission()->with('roles');
-    }
+    // Many-to-many with Permission via pivot table
     public function permission(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(
+            Permission::class,
+            'permission_permission_group', // pivot table
+            'permission_group_id',         // FK in pivot for PermissionGroup
+            'permission_id'                // FK in pivot for Permission
+        );
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'id'; // This should return 'id'
+    }
+
+    /**
+     * Retrieve the model for a bound value.
+     * This ensures the model is properly retrieved from database
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('id', $value)->firstOrFail();
     }
 }

@@ -27,19 +27,49 @@ class InstallCommand extends Command
             $this->warn('⚠ Sanctum migration already exists, skipped.');
         }
 
-        $this->info('Publishing Larashield config...');
-        Artisan::call('vendor:publish', [
-            '--provider' => "Larashield\\Providers\\LarashieldServiceProvider",
-            '--tag' => 'config',
-            '--force' => true,
-        ]);
-        $this->info(Artisan::output());
+        // $this->info('Publishing Larashield config...');
+        // Artisan::call('vendor:publish', [
+        //     '--provider' => "Larashield\\Providers\\LarashieldServiceProvider",
+        //     '--tag' => 'larashield-config',
+        //     '--force' => true,
+        // ]);
+        // $this->info(Artisan::output());
 
-        $this->info('Running migrations...');
+        // ✅ Publish Larashield Configs
+        $this->stepPublish('Larashield configs', 'larashield-config');
+
+        // ✅ Publish Larashield Routes
+        $this->stepPublish('Larashield routes', 'larashield-routes');
+
+        // ✅ Publish Larashield Controllers
+        $this->stepPublish('Larashield controllers', 'larashield-controllers');
+
+        // ✅ Publish Larashield Models
+        $this->stepPublish('Larashield models', 'larashield-models');
+
+        // ✅ Publish Larashield Policies
+        $this->stepPublish('Larashield policies', 'larashield-policies');
+
+        // ✅ Run migrations
+        $this->info('⚙️ Running migrations...');
         Artisan::call('migrate', ['--force' => true]);
         $this->info(Artisan::output());
 
         $this->info('✅ Larashield installation complete.');
         return self::SUCCESS;
+    }
+
+    /**
+     * Helper for publishing with feedback
+     */
+    protected function stepPublish(string $label, string $tag): void
+    {
+        $this->info("📦 Publishing {$label}...");
+        Artisan::call('vendor:publish', [
+            '--provider' => "Larashield\\Providers\\LarashieldServiceProvider",
+            '--tag' => $tag,
+            '--force' => true,
+        ]);
+        $this->info(Artisan::output());
     }
 }
