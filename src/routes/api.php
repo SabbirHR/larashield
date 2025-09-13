@@ -12,12 +12,9 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/register', [AuthController::class, 'registration'])->name('registration');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
     Route::middleware('auth:sanctum')->group(function () {
-        // Bind {role} to Role model
-        Route::bind('role', function ($value) {
-            return Role::findOrFail($value);
-        });
-        Route::apiResource('users', UserController::class);
-        Route::apiResource('permission-groups', PermissionController::class)->only(['index', 'store', 'show', 'destroy']);
-        Route::apiResource('roles', RoleController::class);
+        Route::get('/profile', [AuthController::class, 'userProfile']);
+        Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+        Route::apiResource('permission-groups', PermissionController::class)->only(['index', 'store', 'show', 'destroy'])->middleware(['auth:sanctum']);
+        Route::apiResource('roles', RoleController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     });
 });

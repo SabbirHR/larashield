@@ -2,11 +2,16 @@
 
 namespace Larashield\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Larashield\Models\PermissionGroup;
 use Larashield\Models\User;
+use Larashield\Policies\PermissionGroupPolicy;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Spatie\Permission\Models\Role;
 
 class LarashieldServiceProvider extends ServiceProvider
@@ -49,12 +54,13 @@ class LarashieldServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'larashield-migrations');
-        // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+
         // Load config
         $this->publishes([__DIR__ . '/../Config/larashield.php' => config_path('larashield.php')], 'config');
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        // Load routes
+        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
         // Register console commands
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -71,19 +77,40 @@ class LarashieldServiceProvider extends ServiceProvider
                 'permission' => require __DIR__ . '/../Config/permission.php',
             ]);
         }
+        // 1. Register Gate policies
+        Gate::policy(PermissionGroup::class, \Larashield\Policies\PermissionGroupPolicy::class);
+        Log::info('[LarashieldServiceProvider] Policy registered', [
+            'model' => PermissionGroup::class,
+            'policy' => \Larashield\Policies\PermissionGroupPolicy::class,
+        ]);
         // 3️⃣ Bind the route parameter to the model with eager loading
         Route::bind('permission_group', function ($value) {
-            return PermissionGroup::with([
-                'permission',
+            $permissionGroup = PermissionGroup::with([
+                'permissions:id,name',
                 'permission_group_has_permission.permission'
             ])->findOrFail($value);
+
+            Log::info('[Route Binding] Loaded permission_group', [
+                'id' => $permissionGroup->id,
+                'class' => get_class($permissionGroup)
+            ]);
+
+            return $permissionGroup;
         });
+
 
         // 4️⃣ Other model bindings
         Route::model('user', User::class);
         Route::model('role', Role::class);
-      
 
-        Log::info('LarashieldServiceProvider booted');
+        // 5️⃣ Register Spatie permission middleware aliases
+        $router = $this->app['router'];
+        $router->aliasMiddleware('role', RoleMiddleware::class);
+        $router->aliasMiddleware('permission', PermissionMiddleware::class);
+        $router->aliasMiddleware('role_or_permission', RoleOrPermissionMiddleware::class);
+
+        // Register policy
+        // Gate::policy(PermissionGroup::class, PermissionGroupPolicy::class);
+        // Log::info('[LarashieldServiceProvider] Policy registered: PermissionGroup → PermissionGroupPolicy');
     }
 }

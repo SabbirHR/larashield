@@ -21,19 +21,21 @@ class UserController extends Controller
         $this->resourceService->setValue($request, new User);
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        // $this->authorize('viewAny', User::class);
-        return $this->resourceService->index();
+        return $this->resourceService->index(null, User::with(['roles:id,name']));
     }
 
     public function store(UserRequest $request)
     {
+        // return $request;
+        $user = User::create($request->validated());
+        $user->user_type = config('setup-config.admin.user_type');
+        $user->save();
+        $user->assignRole($request->validated()['role']);
+        $user->givePermissionTo($request->validated()['permissions'] ?? []);
         // $this->authorize('create', User::class);
-        return $this->resourceService
-            ->message('User created successfully')
-            ->responseCode(HttpResponse::HTTP_CREATED)
-            ->store($request->validated());
+        return $this->resourceService->store([], null, $user);
     }
 
     public function show($id)
@@ -41,10 +43,16 @@ class UserController extends Controller
         return $this->resourceService->show('User retrieved successfully', User::findOrFail($id));
     }
 
-    public function update(UserRequest $request, User $user)
+    public function update(UserRequest $request, $id)
     {
-        $this->authorize('update', $user);
-        return $this->resourceService->update($request->validated(), $user);
+        // return User::findOrFail($id)->load(["roles:id,name", "permissions:id,name"]);
+        // dd(User::findOrFail($id));
+        // $this->authorize('update', $user);
+        $user = User::findOrFail($id);
+        $user->update($request->validated());
+        isset($request->validated()['role']) ? $user->syncRoles($request->validated()['role']) : null;
+        $user->syncPermissions($request->validated()['permissions'] ?? []);
+        return $this->resourceService->update([], $user->load(["roles", "permissions:id,name"]));
     }
 
     public function destroy(User $user)

@@ -15,6 +15,53 @@ class User extends Authenticatable
     protected $hidden = ['password', 'remember_token'];
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed', 
+        'password' => 'hashed',
+    ];
+    public $allowedFields = [
+        'id',
+        'name',
+        'email',
+        'phone',
+        'gender',
+        'image',
+        'status',
+        'email_verified_at',
+        'roles.id',
+        'roles.name',
+        'created_at',
+        'updated_at'
+
+    ];
+    public $allowedFilters = [
+        'id',
+        'name',
+        'email',
+        'phone',
+        'gender',
+        'image',
+        'status',
+        'email_verified_at',
+        'roles.id',
+        'roles.name',
+        'created_at',
+        'updated_at'
+
+    ];
+    public $allowedSorts = [
+        'id',
+        'name',
+        'email',
+        'phone',
+        'gender',
+        'status',
+        'email_verified_at',
+        'roles.id',
+        'roles.name',
+        'created_at',
+        'updated_at'
+    ];
+    public $allowedIncludes = [
+        'roles',
+        'permission'
     ];
 }

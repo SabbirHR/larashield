@@ -16,6 +16,11 @@ class RoleController extends Controller
 
     public function __construct(ResourceService $resourceService)
     {
+        // Middleware for permission-based access control
+        $this->middleware('permission:read_role', ['only' => ['index', 'show']]);
+        $this->middleware('permission:create_role', ['only' => ['create', 'store']]);
+        $this->middleware('permission:update_role', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delete_role', ['only' => ['destroy']]);
         $this->resourceService = $resourceService;
         $this->resourceService->setValue(request(), new Role);
     }
@@ -29,7 +34,7 @@ class RoleController extends Controller
     {
         $role = Role::create($request->validated());
         $role->givePermissionTo($request->permissions);
-        return $this->successResponse($role->load('permissions'), 200, 'Role created');
+        return $this->successResponse($role->load('permissions'), ApiCodes::OK, 'Role created');
     }
 
     public function show($id)
@@ -53,7 +58,6 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        // return 
         $role = Role::findOrFail($id);
         $role->permissions()->detach();
         return $this->resourceService->destroy($role);

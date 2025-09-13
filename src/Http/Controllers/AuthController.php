@@ -91,4 +91,19 @@ class AuthController extends Controller
             HttpResponse::HTTP_OK
         );
     }
+    /**
+     * Get authenticated user details
+     */
+    public function userProfile()
+    {
+        return $this->successResponse(
+            [
+                'user' => auth()->user()->makeHidden(['roles', 'permissions']),
+                'role' => auth()->user()->getRoleNames(),
+                'permissions' => auth()->user()->getAllPermissions()->pluck('name'),
+            ],
+            ApiCodes::OK,
+            'User profile retrieved successfully.'
+        );
+    }
 }
