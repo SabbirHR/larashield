@@ -28,7 +28,6 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        // return $request;
         $user = User::create($request->validated());
         $user->user_type = config('setup-config.admin.user_type');
         $user->save();
@@ -45,9 +44,6 @@ class UserController extends Controller
 
     public function update(UserRequest $request, $id)
     {
-        // return User::findOrFail($id)->load(["roles:id,name", "permissions:id,name"]);
-        // dd(User::findOrFail($id));
-        // $this->authorize('update', $user);
         $user = User::findOrFail($id);
         $user->update($request->validated());
         isset($request->validated()['role']) ? $user->syncRoles($request->validated()['role']) : null;
@@ -55,12 +51,9 @@ class UserController extends Controller
         return $this->resourceService->update([], $user->load(["roles", "permissions:id,name"]));
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        $this->authorize('delete', $user);
-        return $this->resourceService
-            ->message('User deleted successfully')
-            ->responseCode(HttpResponse::HTTP_OK)
-            ->destroy($user);
+        $user = User::findOrFail($id);
+        return $this->resourceService->message('User deleted successfully')->responseCode(HttpResponse::HTTP_OK)->destroy($user);
     }
 }

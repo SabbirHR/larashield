@@ -27,7 +27,7 @@ class PermissionController extends Controller
         $this->middleware('permission:create_permission', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_permission', ['only' => ['update']]);
         $this->middleware('permission:delete_permission', ['only' => ['destroy']]);
-        $this->authorizeResource(PermissionGroup::class, 'permission_group');
+        // $this->authorizeResource(PermissionGroup::class, 'permission_group');
         $this->resourceService = $resourceService;
         $this->permissionService = $permissionService;
         $this->resourceService->setValue($request, new PermissionGroup);
@@ -58,20 +58,9 @@ class PermissionController extends Controller
     /**
      * Show Permission Group with relations
      */
-    public function show(\Larashield\Models\PermissionGroup $permissionGroup)
+    public function show($id)
     {
-        // Policy will now be triggered automatically
-        Log::info('[PermissionController] Authorizing view', [
-            'user_id' => auth()->id(),
-            'permission_group_id' => $permissionGroup->id,
-            'user_roles' => auth()->user()->getRoleNames()->toArray(),
-            'class' => get_class($permissionGroup)
-        ]);
-        dd($permissionGroup);
         $permissionGroup =  PermissionGroup::with(['permissions:id,name', 'permission_group_has_permission'])->findOrFail($id);
-        Log::info('Authorize called', ['user' => auth()->user(), 'permission_group' => $permissionGroup]);
-
-        $this->authorize('view', $permissionGroup);
         return $this->resourceService->show(null, $permissionGroup);
     }
 
