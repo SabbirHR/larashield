@@ -3,14 +3,18 @@
 namespace Larashield\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Larashield\Traits\CustomAuditable;
+use Laravel\Sanctum\HasApiTokens;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
-{
-    use HasApiTokens, Notifiable, HasRoles;
 
+class User extends Authenticatable implements Auditable
+{
+    use HasApiTokens, Notifiable, HasRoles, CustomAuditable;
+    // Audit log hidden password
+    protected $auditExclude = ['password'];
     protected $fillable = ['name', 'email', 'password', 'phone', 'gender', 'user_type', 'status', 'email_verified_at'];
     protected $hidden = ['password', 'remember_token'];
     protected $casts = [

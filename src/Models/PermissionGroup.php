@@ -5,10 +5,13 @@ namespace Larashield\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Larashield\Traits\CustomAuditable;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Models\Permission;
 
-class PermissionGroup extends Model
+class PermissionGroup extends Model implements Auditable
 {
+    use CustomAuditable;
     protected $table = 'permission_groups';
 
     protected $fillable = [
@@ -52,5 +55,4 @@ class PermissionGroup extends Model
     {
         return $this->belongsToMany(Permission::class);
     }
-
 }

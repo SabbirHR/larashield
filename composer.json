@@ -19,7 +19,8 @@
     "spatie/laravel-permission": "^6.10",
     "marcin-orlowski/laravel-api-response-builder": "^12.0",
     "laravel/sanctum": "^4.0",
-    "sabbir/response-builder": "@dev"
+    "sabbir/response-builder": "@dev",
+    "owen-it/laravel-auditing": "^14.0"
   },
   "repositories": [
     {

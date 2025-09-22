@@ -55,6 +55,10 @@ class LarashieldServiceProvider extends ServiceProvider
             __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'larashield-migrations');
 
+        // Publish Traits so users can override or customize them
+        $this->publishes([
+            __DIR__ . '/../Traits/CustomAuditable.php' => app_path('Traits/CustomAuditable.php'),
+        ], 'larashield-traits');
         // Load config
         $this->publishes([__DIR__ . '/../Config/larashield.php' => config_path('larashield.php')], 'config');
         // Load migrations
