@@ -2,15 +2,16 @@
 
 namespace Larashield\Http\Controllers;
 
-use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use Larashield\Models\User;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Hash;
 use Larashield\Http\Requests\RegistrationRequest;
+use Larashield\Models\User;
+use OwenIt\Auditing\Models\Audit;
+use Sabbir\ResponseBuilder\Constants\ApiCodes;
 use Sabbir\ResponseBuilder\Services\ResourceService;
 use Sabbir\ResponseBuilder\Traits\ResponseHelperTrait;
-use Sabbir\ResponseBuilder\Constants\ApiCodes;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -43,7 +44,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
-
+        $this->logAuthAudit($request, $user, 'login', ['status' => 'logged_in']);
         return $this->successResponse(
             ['user' => $user, 'token' => $token],
             ApiCodes::OK,
@@ -55,6 +56,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+        $this->logAuthAudit($request, $request->user(), 'logout', ['status' => 'logged_out']);
 
         return $this->successResponse(
             null,
@@ -105,5 +107,25 @@ class AuthController extends Controller
             ApiCodes::OK,
             'User profile retrieved successfully.'
         );
+    }
+
+    /**
+     * 🔐 Private helper to log login/logout audits
+     */
+    private function logAuthAudit(Request $request, User $user, string $event, array $newValues = []): void
+    {
+        Audit::create([
+            'user_type'      => $user->getMorphClass(),
+            'user_id'        => $user->id,
+            'event'          => $event,
+            'auditable_type' => get_class($user),
+            'auditable_id'   => $user->id,
+            'old_values'     => [],
+            'new_values'     => $newValues,
+            'url'            => $request->fullUrl(),
+            'ip_address'     => $request->ip(),
+            'user_agent'     => $request->header('User-Agent'),
+            'tags'           => "User " . ucfirst($event),
+        ]);
     }
 }

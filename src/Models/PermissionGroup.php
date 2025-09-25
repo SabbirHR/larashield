@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Larashield\Traits\CustomAuditable;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Models\Permission;
+use Larashield\Traits\SerializesDateWithTimezone;
 
 class PermissionGroup extends Model implements Auditable
 {
-    use CustomAuditable;
+    use CustomAuditable, SerializesDateWithTimezone;
     protected $table = 'permission_groups';
 
     protected $fillable = [

@@ -32,6 +32,9 @@ class LarashieldServiceProvider extends ServiceProvider
             __DIR__ . '/../Config/permission.php' => config_path('permission.php'),
             __DIR__ . '/../Config/setup-config.php' => config_path('setup-config.php'),
         ], 'larashield-config');
+        // set timezone automatically
+        config(['app.timezone' => config('larashield.timezone', 'Asia/Dhaka')]);
+        date_default_timezone_set(config('app.timezone'));
         // Publish routes into routes/api/api_larashield.php (keeps app routes/api.php intact)
         $this->publishes([
             __DIR__ . '/../routes/api.php' => base_path('routes/api/api_larashield.php'),

@@ -13,6 +13,10 @@ trait CustomAuditable
      */
     public function transformAudit(array $data): array
     {
+        $user = auth()->user();
+
+        $data['user_id'] = $user?->id;       // null if no user
+        $data['user_type'] = $user?->getMorphClass(); // or get_class($user)
         $data['user_agent'] = request()->header('User-Agent');
         $modelName = class_basename($this);
 

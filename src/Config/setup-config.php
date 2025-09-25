@@ -80,14 +80,23 @@ return [
             ],
         ],
         [
-            'name' => 'permissions',
+            'name' => 'permission',
             'permissions' => [
                 'create',
                 'read',
                 'update',
                 'delete',
             ],
-        ]
+        ],
+        [
+            'name' => 'audit_log',
+            'audit_log' => [
+                'create',
+                'read',
+                'update',
+                'delete',
+            ],
+        ],
     ],
 
     // Mapped permissions for roles
@@ -112,10 +121,16 @@ return [
             'delete_role',
 
             // Permissions management
-            'create_permissions',
-            'read_permissions',
-            'update_permissions',
-            'delete_permissions',
+            'create_permission',
+            'read_permission',
+            'update_permission',
+            'delete_permission',
+
+            // audit_log management
+            'create_audit_log',
+            'read_audit_log',
+            'update_audit_log',
+            'delete_audit_log',
         ],
         'admin' => [
             // Dashboard permissions
