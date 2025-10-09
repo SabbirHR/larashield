@@ -44,6 +44,8 @@ class InstallCommand extends Command
         Artisan::call('migrate', ['--force' => true]);
         $this->info(Artisan::output());
 
+        $this->seedSetupConfig();
+
         $this->info('✅ Larashield installation complete.');
         return self::SUCCESS;
     }
@@ -126,5 +128,15 @@ class InstallCommand extends Command
             rename($migrationFile, $newName);
             $this->info("✅ Auditing migration created: " . basename($newName));
         }
+    }
+
+    protected function seedSetupConfig(): void
+    {
+        $this->info('🌱 Seeding roles, users, and permissions...');
+        Artisan::call('db:seed', [
+            '--class' => 'Larashield\\Database\\Seeders\\SetupConfigSeeder',
+            '--force' => true,
+        ]);
+        $this->info(Artisan::output());
     }
 }
