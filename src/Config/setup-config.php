@@ -26,7 +26,7 @@ return [
         'email' => 'b2b@gmail.com',
         'password' => env('B2B_PASSWORD', 'password'),
         'gender' => 'male',
-        'phone' => '+88017xxxxxxxx',
+        'phone' => '+880171xxxxxxx',
         'role' => 'b2b',
         'user_type' => 'b2b'
     ],
@@ -90,7 +90,7 @@ return [
         ],
         [
             'name' => 'audit_log',
-            'audit_log' => [
+            'permissions' => [
                 'create',
                 'read',
                 'update',
