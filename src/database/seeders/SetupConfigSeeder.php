@@ -1,6 +1,6 @@
 <?php
 
-namespace Larashield\Database\Seeders;
+namespace Larashield\database\seeders;
 
 use Illuminate\Database\Seeder;
 use Larashield\Models\PermissionGroup;

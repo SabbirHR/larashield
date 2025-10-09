@@ -134,7 +134,7 @@ class InstallCommand extends Command
     {
         $this->info('🌱 Seeding roles, users, and permissions...');
         Artisan::call('db:seed', [
-            '--class' => 'Larashield\\Database\\Seeders\\SetupConfigSeeder',
+            '--class' => 'Larashield\\database\\seeders\\SetupConfigSeeder',
             '--force' => true,
         ]);
         $this->info(Artisan::output());
