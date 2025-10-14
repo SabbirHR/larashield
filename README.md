@@ -17,6 +17,9 @@ Run the following command to install Larashield and its dependencies:
 
 ```bash
 composer require sabbir/larashield:@dev -W
+
+```bash
+composer require sabbirhr/larashield:dev-main -W
 ## 3️⃣ Automatic Setup
 
 After installation, Larashield auto-publishes configs and runs migrations.
