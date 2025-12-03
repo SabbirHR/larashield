@@ -2,7 +2,7 @@
 
 namespace Larashield\Http\Controllers;
 
-use Illuminate\Routing\Controller;
+use Larashield\Http\Controllers\Controller;
 use Larashield\Http\Requests\RoleRequest;
 use Sabbir\ResponseBuilder\Constants\ApiCodes;
 use Sabbir\ResponseBuilder\Services\ResourceService;
@@ -22,6 +22,7 @@ class RoleController extends Controller
         $this->middleware('permission:create_role', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_role', ['only' => ['edit', 'update']]);
         $this->middleware('permission:delete_role', ['only' => ['destroy']]);
+        $this->authorizeResource(Role::class, 'role');
         $this->resourceService = $resourceService;
         $this->resourceService->setValue(request(), new Role);
     }

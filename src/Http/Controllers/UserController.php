@@ -2,7 +2,7 @@
 
 namespace Larashield\Http\Controllers;
 
-use Illuminate\Routing\Controller;
+use Larashield\Http\Controllers\Controller;
 use Larashield\Models\User;
 use Illuminate\Http\Request;
 use Sabbir\ResponseBuilder\Services\ResourceService;
@@ -17,6 +17,11 @@ class UserController extends Controller
 
     public function __construct(ResourceService $resourceService, Request $request)
     {
+        $this->middleware('permission:read_user', ['only' => ['index', 'show']]);
+        $this->middleware('permission:create_user', ['only' => ['create', 'store']]);
+        $this->middleware('permission:update_user', ['only' => ['update']]);
+        $this->middleware('permission:delete_user', ['only' => ['destroy']]);
+        $this->authorizeResource(User::class, 'user');
         $this->resourceService = $resourceService;
         $this->resourceService->setValue($request, new User);
     }
@@ -33,7 +38,6 @@ class UserController extends Controller
         $user->save();
         $user->assignRole($request->validated()['role']);
         $user->givePermissionTo($request->validated()['permissions'] ?? []);
-        // $this->authorize('create', User::class);
         return $this->resourceService->store([], null, $user);
     }
 

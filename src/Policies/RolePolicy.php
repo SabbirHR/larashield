@@ -1,11 +1,55 @@
 <?php
+
 namespace Larashield\Policies;
+
+use Spatie\Permission\Models\Role;
+use Larashield\Traits\ResolvesModel;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RolePolicy
 {
-    public function viewAny($user) { return $user->hasRole(['superadmin','admin']); }
-    public function view($user,$model) { return $user->hasRole('superadmin'); }
-    public function create($user) { return $user->hasRole('superadmin'); }
-    public function update($user,$model) { return $user->hasRole('superadmin'); }
-    public function delete($user,$model) { return $user->hasRole('superadmin'); }
+    use HandlesAuthorization, ResolvesModel;
+
+    public function viewAny($user): bool
+    { 
+        return $user->hasRole(['superadmin','admin']); 
+    }
+    
+    public function view($user, $modelOrId): bool
+    { 
+        $model = $this->resolveModel($modelOrId, Role::class);
+        
+        if (!$model) {
+            return false;
+        }
+        
+        return $user->hasRole('superadmin'); 
+    }
+    
+    public function create($user): bool
+    { 
+        return $user->hasRole('superadmin'); 
+    }
+    
+    public function update($user, $modelOrId): bool
+    { 
+        $model = $this->resolveModel($modelOrId, Role::class);
+        
+        if (!$model) {
+            return false;
+        }
+        
+        return $user->hasRole('superadmin'); 
+    }
+    
+    public function delete($user, $modelOrId): bool
+    { 
+        $model = $this->resolveModel($modelOrId, Role::class);
+        
+        if (!$model) {
+            return false;
+        }
+        
+        return $user->hasRole('superadmin'); 
+    }
 }

@@ -3,7 +3,7 @@
 namespace Larashield\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Larashield\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Larashield\Models\PermissionGroup;
@@ -27,7 +27,7 @@ class PermissionController extends Controller
         $this->middleware('permission:create_permission', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_permission', ['only' => ['update']]);
         $this->middleware('permission:delete_permission', ['only' => ['destroy']]);
-        // $this->authorizeResource(PermissionGroup::class, 'permission_group');
+        $this->authorizeResource(PermissionGroup::class, 'permission_group');
         $this->resourceService = $resourceService;
         $this->permissionService = $permissionService;
         $this->resourceService->setValue($request, new PermissionGroup);

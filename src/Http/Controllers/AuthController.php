@@ -3,7 +3,7 @@
 namespace Larashield\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Larashield\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Larashield\Http\Requests\RegistrationRequest;
 use Larashield\Models\User;

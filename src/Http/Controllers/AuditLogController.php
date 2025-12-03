@@ -2,7 +2,7 @@
 
 namespace Larashield\Http\Controllers;
 
-use Illuminate\Routing\Controller;
+use Larashield\Http\Controllers\Controller;
 use OwenIt\Auditing\Models\Audit;
 use Illuminate\Http\Request;
 use Sabbir\ResponseBuilder\Services\ResourceService;
