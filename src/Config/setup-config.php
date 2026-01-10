@@ -97,6 +97,59 @@ return [
                 'delete',
             ],
         ],
+        // Admin controllers
+        [
+            'name' => 'tenant',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'meter_reading',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'payment_method',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'expense',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'room_rent',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'maintenance_request',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'meter_rate',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'room',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'bill',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'property',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'payment',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'meter',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
+        [
+            'name' => 'room_tenant',
+            'permissions' => ['create', 'read', 'update', 'delete'],
+        ],
     ],
 
     // Mapped permissions for roles
@@ -131,6 +184,60 @@ return [
             'read_audit_log',
             'update_audit_log',
             'delete_audit_log',
+
+            // Admin controller permissions
+            'create_tenant',
+            'read_tenant',
+            'update_tenant',
+            'delete_tenant',
+            'create_meter_reading',
+            'read_meter_reading',
+            'update_meter_reading',
+            'delete_meter_reading',
+            'create_payment_method',
+            'read_payment_method',
+            'update_payment_method',
+            'delete_payment_method',
+            'create_expense',
+            'read_expense',
+            'update_expense',
+            'delete_expense',
+            'create_room_rent',
+            'read_room_rent',
+            'update_room_rent',
+            'delete_room_rent',
+            'create_maintenance_request',
+            'read_maintenance_request',
+            'update_maintenance_request',
+            'delete_maintenance_request',
+            'create_meter_rate',
+            'read_meter_rate',
+            'update_meter_rate',
+            'delete_meter_rate',
+            'create_room',
+            'read_room',
+            'update_room',
+            'delete_room',
+            'create_bill',
+            'read_bill',
+            'update_bill',
+            'delete_bill',
+            'create_property',
+            'read_property',
+            'update_property',
+            'delete_property',
+            'create_payment',
+            'read_payment',
+            'update_payment',
+            'delete_payment',
+            'create_meter',
+            'read_meter',
+            'update_meter',
+            'delete_meter',
+            'create_room_tenant',
+            'read_room_tenant',
+            'update_room_tenant',
+            'delete_room_tenant',
         ],
         'admin' => [
             // Dashboard permissions
@@ -178,10 +285,71 @@ return [
         'delete_role',
 
         // Permissions management
-        'create_permissions',
-        'read_permissions',
-        'update_permissions',
-        'delete_permissions',
+        'create_permission', // Fixed suffix
+        'read_permission',   // Fixed suffix
+        'update_permission', // Fixed suffix
+        'delete_permission', // Fixed suffix
+
+        // Audit log permissions
+        'create_audit_log',
+        'read_audit_log',
+        'update_audit_log',
+        'delete_audit_log',
+
+        // Admin controllers
+        'create_tenant',
+        'read_tenant',
+        'update_tenant',
+        'delete_tenant',
+        'create_meter_reading',
+        'read_meter_reading',
+        'update_meter_reading',
+        'delete_meter_reading',
+        'create_payment_method',
+        'read_payment_method',
+        'update_payment_method',
+        'delete_payment_method',
+        'create_expense',
+        'read_expense',
+        'update_expense',
+        'delete_expense',
+        'create_room_rent',
+        'read_room_rent',
+        'update_room_rent',
+        'delete_room_rent',
+        'create_maintenance_request',
+        'read_maintenance_request',
+        'update_maintenance_request',
+        'delete_maintenance_request',
+        'create_meter_rate',
+        'read_meter_rate',
+        'update_meter_rate',
+        'delete_meter_rate',
+        'create_room',
+        'read_room',
+        'update_room',
+        'delete_room',
+        'create_bill',
+        'read_bill',
+        'update_bill',
+        'delete_bill',
+        'create_property',
+        'read_property',
+        'update_property',
+        'delete_property',
+        'create_payment',
+        'read_payment',
+        'update_payment',
+        'delete_payment',
+        'create_meter',
+        'read_meter',
+        'update_meter',
+        'delete_meter',
+        'create_room_tenant',
+        'read_room_tenant',
+        'update_room_tenant',
+        'delete_room_tenant',
+
     ],
 
 
@@ -196,6 +364,7 @@ return [
     | Protected Permissions
     |--------------------------------------------------------------------------
     | List of permission names that cannot be deleted or modified
+    |--------------------------------------------------------------------------
     */
     'protected_permissions' => [
         'superadmin_access',

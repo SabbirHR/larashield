@@ -91,18 +91,95 @@ class InstallCommand extends Command
             $existingConfig = require $configPath;
             $packageConfig = require $packageConfigPath;
 
-            $mergedConfig = array_replace_recursive($packageConfig, $existingConfig);
-
-            // Special handling for numeric arrays (like roles or permission_groups)
-            // to avoid duplicate or mixed indexes if needed, but array_replace_recursive 
-            // usually works well for associative arrays.
+            // Perform a smart merge
+            $mergedConfig = $this->smartMerge($packageConfig, $existingConfig);
             
-            $content = "<?php\n\nreturn " . var_export($mergedConfig, true) . ";\n";
+            $content = "<?php\n\nreturn " . $this->prettyPrintArray($mergedConfig) . ";\n";
             file_put_contents($configPath, $content);
             $this->info('✅ Merged package defaults with your existing setup-config.php');
         } else {
             $this->stepPublish('Larashield setup config', 'larashield-config', true);
         }
+    }
+
+    /**
+     * Smartly merge package config with existing config
+     */
+    protected function smartMerge(array $package, array $existing): array
+    {
+        $merged = array_replace_recursive($package, $existing);
+
+        // Special handling for permission_groups to merge by name instead of index
+        if (isset($package['permission_groups']) && isset($existing['permission_groups'])) {
+            $groups = [];
+            foreach ($package['permission_groups'] as $group) {
+                $groups[$group['name']] = $group;
+            }
+            foreach ($existing['permission_groups'] as $group) {
+                if (isset($groups[$group['name']])) {
+                    $groups[$group['name']]['permissions'] = array_unique(array_merge(
+                        $groups[$group['name']]['permissions'],
+                        $group['permissions']
+                    ));
+                } else {
+                    $groups[$group['name']] = $group;
+                }
+            }
+            $merged['permission_groups'] = array_values($groups);
+        }
+
+        // Special handling for simple list arrays to ensure uniqueness and appending
+        $listKeys = ['roles', 'permissions_list', 'protected_roles', 'protected_permissions'];
+        foreach ($listKeys as $key) {
+            if (isset($package[$key]) && isset($existing[$key])) {
+                $merged[$key] = array_unique(array_merge($package[$key], $existing[$key]));
+                $merged[$key] = array_values($merged[$key]); // Reset indices
+            }
+        }
+
+        // Special handling for role_permissions nested lists
+        if (isset($package['role_permissions']) && isset($existing['role_permissions'])) {
+            foreach ($package['role_permissions'] as $role => $permissions) {
+                if (isset($existing['role_permissions'][$role])) {
+                    $merged['role_permissions'][$role] = array_unique(array_merge(
+                        $permissions,
+                        $existing['role_permissions'][$role]
+                    ));
+                    $merged['role_permissions'][$role] = array_values($merged['role_permissions'][$role]);
+                }
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Pretty print array for config file
+     */
+    protected function prettyPrintArray(array $array, int $level = 1): string
+    {
+        $indent = str_repeat('    ', $level);
+        $prevIndent = str_repeat('    ', $level - 1);
+        
+        $isAssoc = array_keys($array) !== range(0, count($array) - 1);
+        
+        $output = "[\n";
+        foreach ($array as $key => $value) {
+            $output .= $indent;
+            if ($isAssoc) {
+                $output .= var_export($key, true) . ' => ';
+            }
+            
+            if (is_array($value)) {
+                $output .= $this->prettyPrintArray($value, $level + 1);
+            } else {
+                $output .= var_export($value, true);
+            }
+            $output .= ",\n";
+        }
+        $output .= $prevIndent . "]";
+        
+        return $output;
     }
 
     protected function installAuditingPackage(): void

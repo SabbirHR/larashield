@@ -21,7 +21,26 @@ class LarashieldServiceProvider extends ServiceProvider
         // Merge package configs with application's configs
         $this->mergeConfigFrom(__DIR__ . '/../Config/larashield.php', 'larashield');
         $this->mergeConfigFrom(__DIR__ . '/../Config/permission.php', 'permission');
-        $this->mergeConfigFrom(__DIR__ . '/../Config/setup-config.php', 'setup-config');
+        
+        // Deep merge for setup-config to ensure nested keys aren't lost
+        $this->mergeConfigRecursive(__DIR__ . '/../Config/setup-config.php', 'setup-config');
+    }
+
+    /**
+     * Merge the given configuration recursively.
+     *
+     * @param  string  $path
+     * @param  string  $key
+     * @return void
+     */
+    protected function mergeConfigRecursive($path, $key)
+    {
+        $config = $this->app->make('config');
+        $packageConfig = require $path;
+
+        $existingConfig = $config->get($key, []);
+        
+        $config->set($key, array_replace_recursive($packageConfig, $existingConfig));
     }
 
     public function boot(): void
