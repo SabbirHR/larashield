@@ -27,7 +27,7 @@ class PermissionController extends Controller
         $this->middleware('permission:create_permission', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_permission', ['only' => ['update']]);
         $this->middleware('permission:delete_permission', ['only' => ['destroy']]);
-        $this->authorizeResource(PermissionGroup::class, 'permission_group');
+        // $this->authorizeResource(PermissionGroup::class, 'permission_group');
         $this->resourceService = $resourceService;
         $this->permissionService = $permissionService;
         $this->resourceService->setValue($request, new PermissionGroup);
@@ -38,6 +38,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', PermissionGroup::class);
         return $this->resourceService->index();
     }
 
@@ -46,6 +47,7 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', PermissionGroup::class);
         $request->validate(['name' => 'required|unique:permission_groups']);
 
         $this->permissionService->createPermissionGroup($request->name);
@@ -61,6 +63,7 @@ class PermissionController extends Controller
     public function show($id)
     {
         $permissionGroup =  PermissionGroup::with(['permissions:id,name', 'permission_group_has_permission'])->findOrFail($id);
+         $this->authorize('view', $permissionGroup);
         return $this->resourceService->show(null, $permissionGroup);
     }
 
@@ -70,6 +73,7 @@ class PermissionController extends Controller
     public function destroy($id)
     {
         $permissionGroup = PermissionGroup::findOrFail($id);
+        $this->authorize('delete', $permissionGroup);
         $this->permissionService->deletePermissionGroup($permissionGroup->id);
         return $this->successResponse(null, ApiCodes::OK, 'Permission deleted successfully');
     }

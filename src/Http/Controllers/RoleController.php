@@ -22,18 +22,20 @@ class RoleController extends Controller
         $this->middleware('permission:create_role', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_role', ['only' => ['edit', 'update']]);
         $this->middleware('permission:delete_role', ['only' => ['destroy']]);
-        $this->authorizeResource(Role::class, 'role');
+        // $this->authorizeResource(Role::class, 'role');
         $this->resourceService = $resourceService;
         $this->resourceService->setValue(request(), new Role);
     }
 
     public function index()
     {
+        $this->authorize('viewAny', Role::class);
         return $this->resourceService->index();
     }
 
     public function store(RoleRequest $request)
     {
+        $this->authorize('create', Role::class);
         $role = Role::create($request->validated());
         $role->givePermissionTo($request->permissions);
         $this->logRoleAudit('created', $role);
@@ -42,12 +44,15 @@ class RoleController extends Controller
 
     public function show($id)
     {
-        return $this->resourceService->show(null, Role::with(['permissions',])->findOrFail($id));
+        $role = Role::with(['permissions'])->findOrFail($id);
+        $this->authorize('view', $role);
+        return $this->resourceService->show(null, $role);
     }
 
     public function update(RoleRequest $request,  $id)
     {
         $role = Role::findOrFail($id);
+        $this->authorize('update', $role);
         $oldData = $role->toArray();
         $role->update($request->validated());
         if ($request->has('permissions')) {
@@ -64,6 +69,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
+        $this->authorize('delete', $role);
         $oldData = $role->toArray();
         $role->permissions()->detach();
         $role->delete();

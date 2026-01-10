@@ -21,18 +21,20 @@ class UserController extends Controller
         $this->middleware('permission:create_user', ['only' => ['create', 'store']]);
         $this->middleware('permission:update_user', ['only' => ['update']]);
         $this->middleware('permission:delete_user', ['only' => ['destroy']]);
-        $this->authorizeResource(User::class, 'user');
+        // $this->authorizeResource(User::class, 'user');
         $this->resourceService = $resourceService;
         $this->resourceService->setValue($request, new User);
     }
 
     public function index()
     {
+        $this->authorize('viewAny', User::class);
         return $this->resourceService->index(null, User::with(['roles:id,name']));
     }
 
     public function store(UserRequest $request)
     {
+        $this->authorize('create', User::class);
         $user = User::create($request->validated());
         $user->user_type = config('setup-config.admin.user_type');
         $user->save();
@@ -43,12 +45,15 @@ class UserController extends Controller
 
     public function show($id)
     {
-        return $this->resourceService->show('User retrieved successfully', User::findOrFail($id));
+        $user = User::findOrFail($id);
+        $this->authorize('view', $user);
+        return $this->resourceService->show('User retrieved successfully', $user->load(['roles', 'permissions:id,name']));
     }
 
     public function update(UserRequest $request, $id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('update', $user);
         $user->update($request->validated());
         isset($request->validated()['role']) ? $user->syncRoles($request->validated()['role']) : null;
         $user->syncPermissions($request->validated()['permissions'] ?? []);
@@ -58,6 +63,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('delete', $user);
         return $this->resourceService->message('User deleted successfully')->responseCode(HttpResponse::HTTP_OK)->destroy($user);
     }
 }
