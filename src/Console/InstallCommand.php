@@ -18,7 +18,7 @@ class InstallCommand extends Command
         $this->publishSanctum();
 
         // 2️⃣ Publish Larashield resources
-        $this->stepPublish('Larashield configs', 'larashield-config');
+        $this->publishAndMergeConfig();
         $this->stepPublish('Larashield routes', 'larashield-routes');
         $this->stepPublish('Larashield controllers', 'larashield-controllers');
         $this->stepPublish('Larashield models', 'larashield-models');
@@ -65,15 +65,44 @@ class InstallCommand extends Command
         }
     }
 
-    protected function stepPublish(string $label, string $tag): void
+    protected function stepPublish(string $label, string $tag, bool $force = true): void
     {
         $this->info("📦 Publishing {$label}...");
         Artisan::call('vendor:publish', [
             '--provider' => "Larashield\\Providers\\LarashieldServiceProvider",
             '--tag' => $tag,
-            '--force' => true,
+            '--force' => $force,
         ]);
         $this->info(Artisan::output());
+    }
+
+    protected function publishAndMergeConfig(): void
+    {
+        $this->info('📦 Processing Larashield configs...');
+
+        $configPath = config_path('setup-config.php');
+        $packageConfigPath = __DIR__ . '/../Config/setup-config.php';
+
+        // Publish other configs normally
+        $this->stepPublish('Larashield basic configs', 'larashield-config', false);
+
+        if (file_exists($configPath)) {
+            $this->info('🔄 Merging setup-config.php...');
+            $existingConfig = require $configPath;
+            $packageConfig = require $packageConfigPath;
+
+            $mergedConfig = array_replace_recursive($packageConfig, $existingConfig);
+
+            // Special handling for numeric arrays (like roles or permission_groups)
+            // to avoid duplicate or mixed indexes if needed, but array_replace_recursive 
+            // usually works well for associative arrays.
+            
+            $content = "<?php\n\nreturn " . var_export($mergedConfig, true) . ";\n";
+            file_put_contents($configPath, $content);
+            $this->info('✅ Merged package defaults with your existing setup-config.php');
+        } else {
+            $this->stepPublish('Larashield setup config', 'larashield-config', true);
+        }
     }
 
     protected function installAuditingPackage(): void
