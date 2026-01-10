@@ -170,8 +170,21 @@ class InstallCommand extends Command
                 $output .= var_export($key, true) . ' => ';
             }
             
-            if (is_array($value)) {
+            // Special handling to restore env() calls for passwords
+            if ($key === 'password' && is_string($value)) {
+                $envKey = strtoupper($this->currentGroupKey ?? 'SUPERADMIN') . '_PASSWORD';
+                // If it's a known group like admin, b2b, b2c
+                if (isset($array['user_type'])) {
+                    $envKey = strtoupper($array['user_type']) . '_PASSWORD';
+                    if ($envKey === 'SADMIN_PASSWORD') $envKey = 'SUPERADMIN_PASSWORD';
+                }
+                $output .= "env('{$envKey}', " . var_export($value, true) . ")";
+            } elseif (is_array($value)) {
+                // Track parent key for env detection
+                $oldGroupKey = $this->currentGroupKey ?? null;
+                if (is_string($key)) $this->currentGroupKey = $key;
                 $output .= $this->prettyPrintArray($value, $level + 1);
+                $this->currentGroupKey = $oldGroupKey;
             } else {
                 $output .= var_export($value, true);
             }
@@ -181,6 +194,8 @@ class InstallCommand extends Command
         
         return $output;
     }
+
+    protected ?string $currentGroupKey = null;
 
     protected function installAuditingPackage(): void
     {

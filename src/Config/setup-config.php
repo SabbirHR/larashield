@@ -97,7 +97,6 @@ return [
                 'delete',
             ],
         ],
-       
     ],
 
     // Mapped permissions for roles
@@ -132,7 +131,6 @@ return [
             'read_audit_log',
             'update_audit_log',
             'delete_audit_log',
-
         ],
         'admin' => [
             // Dashboard permissions
@@ -180,17 +178,16 @@ return [
         'delete_role',
 
         // Permissions management
-        'create_permission', // Fixed suffix
-        'read_permission',   // Fixed suffix
-        'update_permission', // Fixed suffix
-        'delete_permission', // Fixed suffix
+        'create_permission',
+        'read_permission',
+        'update_permission',
+        'delete_permission',
 
-        // Audit log permissions
+        // audit_log management
         'create_audit_log',
         'read_audit_log',
         'update_audit_log',
         'delete_audit_log',
-
     ],
 
 
