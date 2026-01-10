@@ -2,54 +2,49 @@
 
 namespace Larashield\Policies;
 
+use Larashield\Models\User;
 use Spatie\Permission\Models\Role;
 use Larashield\Traits\ResolvesModel;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RolePolicy
 {
-    use HandlesAuthorization, ResolvesModel;
+    use ResolvesModel;
 
-    public function viewAny($user): bool
-    { 
-        return $user->hasRole(['superadmin','admin']); 
+    public function viewAny(User $user): bool
+    {
+        return $user->hasRole(['superadmin', 'admin'], 'web') || $user->hasPermissionTo('read_role', 'web');
     }
-    
-    public function view($user, $modelOrId): bool
-    { 
-        $model = $this->resolveModel($modelOrId, Role::class);
-        
-        if (!$model) {
-            return false;
-        }
-        
-        return $user->hasRole('superadmin'); 
+
+    public function view(User $user, $model): bool
+    {
+        $model = $this->resolveModel($model, Role::class);
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('read_role', 'web');
     }
-    
-    public function create($user): bool
-    { 
-        return $user->hasRole('superadmin'); 
+
+    public function create(User $user): bool
+    {
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('create_role', 'web');
     }
-    
-    public function update($user, $modelOrId): bool
-    { 
-        $model = $this->resolveModel($modelOrId, Role::class);
-        
-        if (!$model) {
-            return false;
-        }
-        
-        return $user->hasRole('superadmin'); 
+
+    public function update(User $user, $model): bool
+    {
+        $model = $this->resolveModel($model, Role::class);
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('update_role', 'web');
     }
-    
-    public function delete($user, $modelOrId): bool
-    { 
-        $model = $this->resolveModel($modelOrId, Role::class);
-        
-        if (!$model) {
-            return false;
-        }
-        
-        return $user->hasRole('superadmin'); 
+
+    public function delete(User $user, $model): bool
+    {
+        $model = $this->resolveModel($model, Role::class);
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('delete_role', 'web');
+    }
+
+    public function restore(User $user, $model): bool
+    {
+        return false;
+    }
+
+    public function forceDelete(User $user, $model): bool
+    {
+        return false;
     }
 }

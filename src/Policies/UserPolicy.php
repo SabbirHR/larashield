@@ -3,42 +3,41 @@
 namespace Larashield\Policies;
 
 use Larashield\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 use Larashield\Traits\ResolvesModel;
 
 class UserPolicy
 {
-    use HandlesAuthorization, ResolvesModel;
+    use ResolvesModel;
 
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['superadmin','admin']) || $user->can('read_user');
+        return $user->hasRole(['superadmin', 'admin'], 'web') || $user->hasPermissionTo('read_user', 'web');
     }
 
     public function view(User $user, $model): bool
     {
         $model = $this->resolveModel($model, User::class);
-        $excludedRoles = ['b2b','b2c'];
-        return ($user->hasRole('superadmin') || $user->can('read_user')) && !$model->hasRole($excludedRoles);
+        $excludedRoles = ['b2b', 'b2c'];
+        return ($user->hasRole('superadmin', 'web') || $user->hasPermissionTo('read_user', 'web')) && !$model->hasRole($excludedRoles, 'web');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('superadmin') || $user->can('create_user');
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('create_user', 'web');
     }
 
     public function update(User $user, $model): bool
     {
         $model = $this->resolveModel($model, User::class);
-        $excludedRoles = ['b2b','b2c','superadmin'];
-        return ($user->hasRole('superadmin') || $user->can('update_user')) && !$model->hasRole($excludedRoles);
+        $excludedRoles = ['b2b', 'b2c', 'superadmin'];
+        return ($user->hasRole('superadmin', 'web') || $user->hasPermissionTo('update_user', 'web')) && !$model->hasRole($excludedRoles, 'web');
     }
 
     public function delete(User $user, $model): bool
     {
         $model = $this->resolveModel($model, User::class);
-        $excludedRoles = ['b2b','b2c'];
-        return ($user->hasRole('superadmin') || $user->can('delete_user')) && !$model->hasRole($excludedRoles);
+        $excludedRoles = ['b2b', 'b2c'];
+        return ($user->hasRole('superadmin', 'web') || $user->hasPermissionTo('delete_user', 'web')) && !$model->hasRole($excludedRoles, 'web');
     }
 
     public function restore(User $user, $model): bool

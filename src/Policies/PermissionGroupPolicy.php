@@ -12,31 +12,31 @@ class PermissionGroupPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['superadmin', 'admin']) || $user->can('read_permission');
+        return $user->hasRole(['superadmin', 'admin'], 'web') || $user->hasPermissionTo('read_permission', 'web');
     }
 
-    public function view(User $user, $permissionGroup): bool
+    public function view(User $user, $model): bool
     {
-        $permissionGroup = $this->resolveModel($permissionGroup, PermissionGroup::class);
-        return $user->hasRole('superadmin') || $user->can('read_permission');
+        $model = $this->resolveModel($model, PermissionGroup::class);
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('read_permission', 'web');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('superadmin') || $user->can('create_permission');
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('create_permission', 'web');
     }
 
-    public function update(User $user, $permissionGroup): bool
+    public function update(User $user, $model): bool
     {
-        $permissionGroup = $this->resolveModel($permissionGroup, PermissionGroup::class);
-        return $user->hasRole('superadmin') || $user->can('update_permission');
+        $model = $this->resolveModel($model, PermissionGroup::class);
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('update_permission', 'web');
     }
 
-    public function delete(User $user, $permissionGroup): bool
+    public function delete(User $user, $model): bool
     {
-        $permissionGroup = $this->resolveModel($permissionGroup, PermissionGroup::class);
+        $model = $this->resolveModel($model, PermissionGroup::class);
 
-        $types = $permissionGroup
+        $types = $model
             ->permission_group_has_permission()
             ->with('permission:id,name')
             ->get()
@@ -48,16 +48,16 @@ class PermissionGroupPolicy
         if (!empty(array_intersect($types, $protectedPermissions))) {
             return false;
         }
-        
-        return $user->hasRole('superadmin') || $user->can('delete_permission');
+
+        return $user->hasRole('superadmin', 'web') || $user->hasPermissionTo('delete_permission', 'web');
     }
 
-    public function restore(User $user, $permissionGroup): bool
+    public function restore(User $user, $model): bool
     {
         return false;
     }
 
-    public function forceDelete(User $user, $permissionGroup): bool
+    public function forceDelete(User $user, $model): bool
     {
         return false;
     }

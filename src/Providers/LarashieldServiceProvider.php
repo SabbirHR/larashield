@@ -84,13 +84,11 @@ class LarashieldServiceProvider extends ServiceProvider
                 'permission' => require __DIR__ . '/../Config/permission.php',
             ]);
         }
-        // 1. Register Gate policies
-        Gate::policy(PermissionGroup::class, \Larashield\Policies\PermissionGroupPolicy::class);
-        Log::info('[LarashieldServiceProvider] Policy registered', [
-            'model' => PermissionGroup::class,
-            'policy' => \Larashield\Policies\PermissionGroupPolicy::class,
-        ]);
-        // 3️⃣ Bind the route parameter to the model with eager loading
+        
+        // Auto-register all policies
+        $this->registerPolicies();
+        
+        // Bind the route parameter to the model with eager loading
         Route::bind('permission_group', function ($value) {
             $permissionGroup = PermissionGroup::with([
                 'permissions:id,name',
@@ -106,18 +104,93 @@ class LarashieldServiceProvider extends ServiceProvider
         });
 
 
-        // 4️⃣ Other model bindings
+        // Other model bindings
         Route::model('user', User::class);
         Route::model('role', Role::class);
 
-        // 5️⃣ Register Spatie permission middleware aliases
+        // Register Spatie permission middleware aliases
         $router = $this->app['router'];
         $router->aliasMiddleware('role', RoleMiddleware::class);
         $router->aliasMiddleware('permission', PermissionMiddleware::class);
         $router->aliasMiddleware('role_or_permission', RoleOrPermissionMiddleware::class);
+    }
 
-        // Register policy
-        // Gate::policy(PermissionGroup::class, PermissionGroupPolicy::class);
-        // Log::info('[LarashieldServiceProvider] Policy registered: PermissionGroup → PermissionGroupPolicy');
+    /**
+     * Auto-discover and register all policies from the Policies directory
+     */
+    protected function registerPolicies(): void
+    {
+        $policies = $this->discoverPolicies();
+        
+        foreach ($policies as $model => $policy) {
+            Gate::policy($model, $policy);
+            Log::info('[LarashieldServiceProvider] Policy registered', [
+                'model' => $model,
+                'policy' => $policy,
+            ]);
+        }
+    }
+
+    /**
+     * Discover all policies in the Policies directory
+     * 
+     * @return array<string, string> Array of model => policy mappings
+     */
+    protected function discoverPolicies(): array
+    {
+        $policies = [];
+        $policiesPath = __DIR__ . '/../Policies';
+        
+        if (!is_dir($policiesPath)) {
+            return $policies;
+        }
+        
+        $policyFiles = glob($policiesPath . '/*Policy.php');
+        
+        foreach ($policyFiles as $policyFile) {
+            $policyClassName = basename($policyFile, '.php');
+            $policyClass = "Larashield\\Policies\\{$policyClassName}";
+            
+            // Extract model name from policy name (e.g., UserPolicy -> User)
+            $modelName = str_replace('Policy', '', $policyClassName);
+            
+            // Determine the full model class
+            $modelClass = $this->resolveModelClass($modelName);
+            
+            if ($modelClass && class_exists($policyClass)) {
+                $policies[$modelClass] = $policyClass;
+            }
+        }
+        
+        return $policies;
+    }
+
+    /**
+     * Resolve the full model class name from the model name
+     * 
+     * @param string $modelName
+     * @return string|null
+     */
+    protected function resolveModelClass(string $modelName): ?string
+    {
+        // Check if it's a Larashield model
+        $larashieldModel = "Larashield\\Models\\{$modelName}";
+        if (class_exists($larashieldModel)) {
+            return $larashieldModel;
+        }
+        
+        // Check if it's a Spatie Permission model (Role, Permission)
+        $spatieModel = "Spatie\\Permission\\Models\\{$modelName}";
+        if (class_exists($spatieModel)) {
+            return $spatieModel;
+        }
+        
+        // Check if it's a standard Laravel model
+        $appModel = "App\\Models\\{$modelName}";
+        if (class_exists($appModel)) {
+            return $appModel;
+        }
+        
+        return null;
     }
 }
