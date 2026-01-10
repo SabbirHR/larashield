@@ -40,18 +40,18 @@ class LarashieldServiceProvider extends ServiceProvider
             __DIR__ . '/../routes/api.php' => base_path('routes/api/api_larashield.php'),
         ], 'larashield-routes');
 
-        // Publish controllers, models, policies if dev wants to override them
-        $this->publishes([
-            __DIR__ . '/../Http/Controllers' => app_path('Http/Controllers/Larashield'),
-        ], 'larashield-controllers');
+        // // Publish controllers, models, policies if dev wants to override them
+        // $this->publishes([
+        //     __DIR__ . '/../Http/Controllers' => app_path('Http/Controllers/Larashield'),
+        // ], 'larashield-controllers');
 
-        $this->publishes([
-            __DIR__ . '/../Models' => app_path('Models/Larashield'),
-        ], 'larashield-models');
+        // $this->publishes([
+        //     __DIR__ . '/../Models' => app_path('Models/Larashield'),
+        // ], 'larashield-models');
 
-        $this->publishes([
-            __DIR__ . '/../Policies' => app_path('Policies/Larashield'),
-        ], 'larashield-policies');
+        // $this->publishes([
+        //     __DIR__ . '/../Policies' => app_path('Policies/Larashield'),
+        // ], 'larashield-policies');
 
         // Publish migrations (so app can edit/migrate)
         $this->publishes([
