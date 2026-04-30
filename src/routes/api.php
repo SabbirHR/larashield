@@ -15,6 +15,8 @@ Route::prefix('api/v1')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [AuthController::class, 'userProfile']);
+        Route::post('/profile', [AuthController::class, 'userProfileUpdate']);
+        Route::post('/change-password', [AuthController::class, 'changePassword']);
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
         Route::apiResource('permission-groups', PermissionController::class)->only(['index', 'store', 'show', 'destroy'])->middleware(['auth:sanctum']);
         Route::apiResource('roles', RoleController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
