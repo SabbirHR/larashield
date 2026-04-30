@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Larashield\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Larashield\Http\Requests\RegistrationRequest;
+use Larashield\Http\Requests\UpdateUserProfileRequest;
+use Larashield\Http\Requests\ChangePasswordRequest;
 use Larashield\Models\User;
 use OwenIt\Auditing\Models\Audit;
 use Sabbir\ResponseBuilder\Constants\ApiCodes;
@@ -112,15 +114,11 @@ class AuthController extends Controller
     /**
      * Update authenticated user details
      */
-    public function userProfileUpdate(Request $request)
+    public function userProfileUpdate(UpdateUserProfileRequest $request)
     {
         $user = $request->user();
         
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        $validated = $request->validated();
 
         $user->update($validated);
 
@@ -143,13 +141,8 @@ class AuthController extends Controller
     /**
      * Change user password
      */
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
         $user = $request->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
